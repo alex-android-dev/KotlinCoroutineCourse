@@ -6,7 +6,6 @@ import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
-import java.util.concurrent.Executors
 import javax.swing.*
 
 object Display {
