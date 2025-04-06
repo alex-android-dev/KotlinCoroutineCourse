@@ -1,14 +1,10 @@
 package callbacks
 
+import entities.Author
+import entities.Book
 import java.awt.BorderLayout
 import java.awt.Dimension
-import javax.swing.JButton
-import javax.swing.JFrame
-import javax.swing.JLabel
-import javax.swing.JPanel
-import javax.swing.JScrollPane
-import javax.swing.JTextArea
-import kotlin.math.min
+import javax.swing.*
 
 object Display {
 
@@ -16,7 +12,21 @@ object Display {
         isEditable = false
     }
 
-    private val loadButton = JButton("Load Book")
+    private val loadButton = JButton("Load Book").apply {
+        addActionListener {
+            isEnabled = false
+            infoArea.text = "Loading Book Information...\n"
+            val book = loadBook()
+            infoArea.append("Book: ${book.title}\nYear: ${book.genre}\nGenre: ${book.genre}\n")
+            infoArea.append("Loading Author Information")
+            val author = loadAuthor(book)
+            infoArea.append("Author ${author.name}\nBiography: ${author.biography}\n")
+            isEnabled = true
+        }
+    }
+
+
+
     private val timerLabel = JLabel("Time: 00:00")
     private val topPanel = JPanel(BorderLayout()).apply {
         add(timerLabel, BorderLayout.WEST)
@@ -33,6 +43,16 @@ object Display {
     fun show() {
         mainFrame.isVisible = true
         startTimer()
+    }
+
+    private fun loadBook() : Book {
+        Thread.sleep(3000)
+        return Book("1984", 1949, "Dystopia")
+    }
+
+    private fun loadAuthor(book: Book) : Author {
+        Thread.sleep(3000)
+        return Author("George Orwell", "British writer")
     }
 
     private fun startTimer() {
