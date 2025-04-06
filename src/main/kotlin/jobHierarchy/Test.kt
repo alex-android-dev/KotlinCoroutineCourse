@@ -1,22 +1,34 @@
 package jobHierarchy
 
-import kotlin.concurrent.thread
+import kotlinx.coroutines.*
+import java.util.concurrent.Executors
+
+private val dispatcherIO = Executors.newCachedThreadPool().asCoroutineDispatcher()
+private val parentJob = Job()
+private val scope = CoroutineScope(dispatcherIO + parentJob)
 
 fun main() {
 
-    thread {
-        repeat(5) {
-            println(it)
-            Thread.sleep(1000)
-        }
+    println(parentJob.toString())
+
+    // Это одна уникальная корутина
+    scope.launch {
+        coroutineContext.job.parent?.let { println(it) }
+        printNumber(1)
     }
 
-    thread(isDaemon = true) {
-        while (true) {
-            println("...")
-            Thread.sleep(1000)
-        }
+    scope.launch {
+        coroutineContext.job.parent?.let { println(it) }
+        printNumber(2)
     }
+    Thread.sleep(2000)
+    parentJob.cancel()
 
+}
 
+private suspend fun printNumber(number: Int) {
+    while (true) {
+        println(number)
+        delay(1000)
+    }
 }
