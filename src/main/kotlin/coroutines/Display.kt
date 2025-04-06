@@ -8,6 +8,7 @@ import java.awt.Dimension
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.awt.event.WindowListener
+import java.util.concurrent.Executors
 import javax.swing.*
 import javax.swing.WindowConstants.EXIT_ON_CLOSE
 import kotlin.concurrent.thread
@@ -15,7 +16,9 @@ import kotlin.coroutines.CoroutineContext
 
 object Display {
 
-    private val scope = CoroutineScope(CoroutineName("Display coroutine scope"))
+    private val dispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+
+    private val scope = CoroutineScope(CoroutineName("Display coroutine scope") + dispatcher)
     // Создаем свой скоуп
     // Передаем составляющие CoroutineContext
 
@@ -72,16 +75,30 @@ object Display {
         startTimer()
     }
 
+    private fun longOperation() {
+        mutableListOf<Int>().apply {
+            repeat(300_000) {
+                add(0, it)
+            }
+        }
+    }
+
     private suspend fun loadBook(): Book {
-        delay(3000)
-        val book = Book("1984", 1949, "Dystopia")
-        return book
+        return withContext(Dispatchers.Default) {
+            longOperation()
+            val book = Book("1984", 1949, "Dystopia")
+            book
+        }
     }
 
     private suspend fun loadAuthor(book: Book): Author {
-        delay(3000)
-        val author = Author("George Orwell", "British writer")
-        return author
+
+        return withContext(Dispatchers.Default) {
+            longOperation()
+            val author = Author("George Orwell", "British writer")
+            author
+        }
+
     }
 
     private suspend fun startTimer() {
