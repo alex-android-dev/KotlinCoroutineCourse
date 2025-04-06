@@ -24,7 +24,6 @@ object Display {
             isEnabled = false
             infoArea.text = "Loading Book Information...\n"
 
-
             val jobsList = mutableListOf<Job>()
 
             repeat(10) {
