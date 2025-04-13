@@ -31,8 +31,6 @@ object Repository {
         // JSON
 
         return Json.decodeFromString(response)
-
-
     }
 
     // Открыть соединение с интернетом
