@@ -13,12 +13,15 @@ fun main() {
         }
     }.asSequence() // поток данных
 
+
     list
         .filter {
+            println("filter")
             filterCount++
             it % 2 == 0
         } // filterCount: 19
         .map {
+            println("map")
             mapCount++
             it * 10
         } // mapCount: 10
