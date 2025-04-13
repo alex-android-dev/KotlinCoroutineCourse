@@ -1,11 +1,15 @@
-package underTheHood
+package Coroutine.coroutinesFromCallbacks
 
-import entities.Author
-import entities.Book
+import Coroutine.entities.Author
+import Coroutine.entities.Book
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.awt.BorderLayout
 import java.awt.Dimension
 import javax.swing.*
 import kotlin.concurrent.thread
+import kotlin.coroutines.suspendCoroutine
 
 object Display {
 
@@ -13,12 +17,29 @@ object Display {
         isEditable = false
     }
 
+    private val scope = CoroutineScope(Dispatchers.Default)
+
     private val loadButton = JButton("Load Book").apply {
         addActionListener {
-            loadData()
+
+            scope.launch {
+                isEnabled = false
+                infoArea.text = "Loading Book Information...\n"
+
+                val book = loadBook()
+                val author = loadAuthor(book)
+
+                infoArea.append("Book: ${book.title}\nYear: ${book.genre}\nGenre: ${book.genre}\n")
+
+                infoArea.append("Loading Author Information...\n")
+                infoArea.append("Author ${author.name}\nBiography: ${author.biography}\n")
+
+                isEnabled = true
+            }
+
+
         }
     }
-
 
     private val timerLabel = JLabel("Time: 00:00")
     private val topPanel = JPanel(BorderLayout()).apply {
@@ -38,34 +59,22 @@ object Display {
         startTimer()
     }
 
-    private fun loadData(
-        stepEvent: Int = 0,
-        data: Any? = null,
-    ) {
-        when (stepEvent) {
-            0 -> {
-                loadButton.isEnabled = false
-                infoArea.text = "Loading Book Information...\n"
-                loadBook { book ->
-                    loadData(stepEvent = 1, data = book)
-                }
+    private suspend fun loadBook(): Book {
+        return suspendCoroutine { continuation ->
+            // continuation используется в state машине
+
+            loadBook { book ->
+                // когда будет доступна книга сообщаем, что мы её получили и необходимо её вернуть наверх
+                continuation.resumeWith(Result.success(book))
             }
+        }
+    }
 
-            1 -> {
-                val book = data as Book
-                infoArea.append("Book: ${book.title}\nYear: ${book.genre}\nGenre: ${book.genre}\n")
-                infoArea.append("Loading Author Information...\n")
+    private suspend fun loadAuthor(book: Book): Coroutine.entities.Author {
+        return suspendCoroutine { continuation ->
 
-                loadAuthor(book) { author ->
-                    loadData(stepEvent = 2, data = author)
-                }
-            }
-
-            2 -> {
-                val author = data as Author
-                infoArea.append("Author ${author.name}\nBiography: ${author.biography}\n")
-                loadButton.isEnabled = true
-
+            loadAuthor(book) { author ->
+                continuation.resumeWith(Result.success(author))
             }
         }
     }
@@ -79,11 +88,10 @@ object Display {
         }
     }
 
-    private fun loadAuthor(book: Book, callback: (Author) -> Unit) {
-
+    private fun loadAuthor(book: Book, callback: (Coroutine.entities.Author) -> Unit) {
         thread {
             Thread.sleep(3000)
-            val author = Author("George Orwell", "British writer")
+            val author = Coroutine.entities.Author("George Orwell", "British writer")
             callback(author)
         }
 

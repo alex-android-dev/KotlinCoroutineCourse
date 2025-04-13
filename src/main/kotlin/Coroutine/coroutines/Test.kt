@@ -1,4 +1,4 @@
-package coroutines
+package Coroutine.coroutines
 
 import kotlinx.coroutines.runBlocking
 
@@ -8,6 +8,6 @@ fun main() = runBlocking {
 
     )
 
-    Display.show()
+    Coroutine.coroutines.Display.show()
 
 }

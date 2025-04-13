@@ -1,7 +1,7 @@
-package callbacks
+package Coroutine.underTheHood
 
-import entities.Author
-import entities.Book
+import Coroutine.entities.Author
+import Coroutine.entities.Book
 import java.awt.BorderLayout
 import java.awt.Dimension
 import javax.swing.*
@@ -15,18 +15,7 @@ object Display {
 
     private val loadButton = JButton("Load Book").apply {
         addActionListener {
-            isEnabled = false
-            infoArea.text = "Loading Book Information...\n"
-
-            loadBook { book ->
-                infoArea.append("Book: ${book.title}\nYear: ${book.genre}\nGenre: ${book.genre}\n")
-
-                infoArea.append("Loading Author Information...\n")
-                loadAuthor(book) { author ->
-                    infoArea.append("Author ${author.name}\nBiography: ${author.biography}\n")
-                }
-            }
-            isEnabled = true
+            loadData()
         }
     }
 
@@ -49,6 +38,38 @@ object Display {
         startTimer()
     }
 
+    private fun loadData(
+        stepEvent: Int = 0,
+        data: Any? = null,
+    ) {
+        when (stepEvent) {
+            0 -> {
+                loadButton.isEnabled = false
+                infoArea.text = "Loading Book Information...\n"
+                loadBook { book ->
+                    loadData(stepEvent = 1, data = book)
+                }
+            }
+
+            1 -> {
+                val book = data as Book
+                infoArea.append("Book: ${book.title}\nYear: ${book.genre}\nGenre: ${book.genre}\n")
+                infoArea.append("Loading Author Information...\n")
+
+                loadAuthor(book) { author ->
+                    loadData(stepEvent = 2, data = author)
+                }
+            }
+
+            2 -> {
+                val author = data as Coroutine.entities.Author
+                infoArea.append("Author ${author.name}\nBiography: ${author.biography}\n")
+                loadButton.isEnabled = true
+
+            }
+        }
+    }
+
     private fun loadBook(callback: (Book) -> Unit) {
         thread {
             Thread.sleep(3000)
@@ -58,11 +79,11 @@ object Display {
         }
     }
 
-    private fun loadAuthor(book: Book, callback: (Author) -> Unit) {
+    private fun loadAuthor(book: Book, callback: (Coroutine.entities.Author) -> Unit) {
 
         thread {
             Thread.sleep(3000)
-            val author = Author("George Orwell", "British writer")
+            val author = Coroutine.entities.Author("George Orwell", "British writer")
             callback(author)
         }
 

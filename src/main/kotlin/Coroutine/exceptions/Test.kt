@@ -1,4 +1,4 @@
-package exceptions
+package Coroutine.exceptions
 
 import kotlinx.coroutines.*
 import java.util.concurrent.Executors
@@ -7,15 +7,15 @@ private val exceptionHandler = CoroutineExceptionHandler { _, _ ->
     println("Exception caught")
 }
 private val dispatcher = Executors.newCachedThreadPool().asCoroutineDispatcher()
-private val scope = CoroutineScope(dispatcher + exceptionHandler)
+private val scope = CoroutineScope(Coroutine.exceptions.dispatcher + Coroutine.exceptions.exceptionHandler)
 
 fun main() {
-    scope.launch {
-        method()
+    Coroutine.exceptions.scope.launch {
+        Coroutine.exceptions.method()
     }
 
-    scope.launch {
-        method2()
+    Coroutine.exceptions.scope.launch {
+        Coroutine.exceptions.method2()
     }
 }
 

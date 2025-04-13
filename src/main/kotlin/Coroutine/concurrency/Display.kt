@@ -1,6 +1,6 @@
-package concurrency
+package Coroutine.concurrency
 
-import entities.Book
+import Coroutine.entities.Book
 import kotlinx.coroutines.*
 import java.awt.BorderLayout
 import java.awt.Dimension

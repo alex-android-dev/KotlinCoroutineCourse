@@ -1,4 +1,4 @@
-package entities
+package Coroutine.entities
 
 data class Author(
     val name: String,

@@ -1,7 +1,7 @@
-package coroutines
+package Coroutine.coroutines
 
-import entities.Author
-import entities.Book
+import Coroutine.entities.Author
+import Coroutine.entities.Book
 import kotlinx.coroutines.*
 import java.awt.BorderLayout
 import java.awt.Dimension
@@ -18,7 +18,7 @@ object Display {
 
     private val dispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 
-    private val scope = CoroutineScope(CoroutineName("Display coroutine scope") + dispatcher)
+    private val scope = CoroutineScope(CoroutineName("Display coroutine scope") + Coroutine.coroutines.Display.dispatcher)
     // Создаем свой скоуп
     // Передаем составляющие CoroutineContext
 
@@ -28,18 +28,18 @@ object Display {
 
     private val loadButton = JButton("Load Book").apply {
         addActionListener {
-            scope.launch {
+            Coroutine.coroutines.Display.scope.launch {
                 isEnabled = false
-                infoArea.text = "Loading Book Information...\n"
+                Coroutine.coroutines.Display.infoArea.text = "Loading Book Information...\n"
 
-                val book = loadBook()
+                val book = Coroutine.coroutines.Display.loadBook()
                 println("Loaded $book")
-                infoArea.append("Book: ${book.title}\nYear: ${book.genre}\nGenre: ${book.genre}\n")
-                infoArea.append("Loading Author Information...\n")
+                Coroutine.coroutines.Display.infoArea.append("Book: ${book.title}\nYear: ${book.genre}\nGenre: ${book.genre}\n")
+                Coroutine.coroutines.Display.infoArea.append("Loading Author Information...\n")
 
-                val author = loadAuthor(book)
+                val author = Coroutine.coroutines.Display.loadAuthor(book)
                 println("Loaded $author")
-                infoArea.append("Author ${author.name}\nBiography: ${author.biography}\n")
+                Coroutine.coroutines.Display.infoArea.append("Author ${author.name}\nBiography: ${author.biography}\n")
 
                 isEnabled = true
             }
@@ -49,8 +49,8 @@ object Display {
 
     private val timerLabel = JLabel("Time: 00:00")
     private val topPanel = JPanel(BorderLayout()).apply {
-        add(timerLabel, BorderLayout.WEST)
-        add(loadButton, BorderLayout.EAST)
+        add(Coroutine.coroutines.Display.timerLabel, BorderLayout.WEST)
+        add(Coroutine.coroutines.Display.loadButton, BorderLayout.EAST)
     }
 
     private val mainFrame = JFrame("Book And Author Info").apply {
@@ -59,20 +59,20 @@ object Display {
         addWindowListener(object : WindowAdapter() {
             override fun windowClosing(e: WindowEvent?) {
                 super.windowClosing(e)
-                scope.cancel()
+                Coroutine.coroutines.Display.scope.cancel()
             }
         })
 
-        add(topPanel, BorderLayout.NORTH)
-        add(JScrollPane(infoArea), BorderLayout.CENTER)
+        add(Coroutine.coroutines.Display.topPanel, BorderLayout.NORTH)
+        add(JScrollPane(Coroutine.coroutines.Display.infoArea), BorderLayout.CENTER)
         size = Dimension(400, 300)
 
 
     }
 
     suspend fun show() {
-        mainFrame.isVisible = true
-        startTimer()
+        Coroutine.coroutines.Display.mainFrame.isVisible = true
+        Coroutine.coroutines.Display.startTimer()
     }
 
     private fun longOperation() {
@@ -85,17 +85,17 @@ object Display {
 
     private suspend fun loadBook(): Book {
         return withContext(Dispatchers.Default) {
-            longOperation()
+            Coroutine.coroutines.Display.longOperation()
             val book = Book("1984", 1949, "Dystopia")
             book
         }
     }
 
-    private suspend fun loadAuthor(book: Book): Author {
+    private suspend fun loadAuthor(book: Book): Coroutine.entities.Author {
 
         return withContext(Dispatchers.Default) {
-            longOperation()
-            val author = Author("George Orwell", "British writer")
+            Coroutine.coroutines.Display.longOperation()
+            val author = Coroutine.entities.Author("George Orwell", "British writer")
             author
         }
 
@@ -108,7 +108,7 @@ object Display {
         while (true) {
             val minutes = totalSeconds / 60
             val seconds = totalSeconds % 60
-            timerLabel.text = String.format("Time: %02d:%02d", minutes, seconds)
+            Coroutine.coroutines.Display.timerLabel.text = String.format("Time: %02d:%02d", minutes, seconds)
             delay(1000)
             totalSeconds++
         }
