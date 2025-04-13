@@ -11,17 +11,17 @@ fun main() {
         repeat(1000) {
             add(Random.nextInt(1000))
         }
-    }
+    }.asSequence() // поток данных
 
     list
         .filter {
             filterCount++
             it % 2 == 0
-        } // filterCount: 1000 - проходит по всем элементам исходной коллекции и создает новую коллекцию
+        } // filterCount: 19
         .map {
             mapCount++
             it * 10
-        } // mapCount: 487 механизм работы аналогичен верхнему
+        } // mapCount: 10
         .take(10)
         .forEach(::println)
 
