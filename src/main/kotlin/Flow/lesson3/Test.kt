@@ -3,8 +3,12 @@ package Flow.lesson3
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.forEach
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
+import java.util.concurrent.Flow
 
 private var lastIndex = 0
 private val dispatcher = Executors.newCachedThreadPool().asCoroutineDispatcher()
@@ -32,16 +36,16 @@ private suspend fun scroll(videos: List<String>) {
 fun main() {
 
     scope.launch {
-        sequence {
+        flow {
             repeat(10) {
                 val nextData: List<String> = loadNext()
-                yield(nextData)
+                emit(nextData) // Кладем данные в поток - эмитим
             }
 
-        }.forEach {
-            scroll(it)
-        }
+        }.take(1)
+            .collect { // аналог forEach
+                scroll(it)
+            }
     }
-
 
 }
