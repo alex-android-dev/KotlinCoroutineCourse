@@ -1,4 +1,4 @@
-package supervisorJob
+package Coroutine.supervisorJob
 
 import kotlinx.coroutines.*
 import java.util.concurrent.ExecutorService
@@ -9,18 +9,18 @@ private val exceptionHandler = CoroutineExceptionHandler { _, _ ->
     println("Exception Caught")
 }
 private val dispatcher = Executors.newCachedThreadPool().asCoroutineDispatcher()
-private val scope = CoroutineScope(parentJob + exceptionHandler + dispatcher)
+private val scope = CoroutineScope(Coroutine.supervisorJob.parentJob + Coroutine.supervisorJob.exceptionHandler + Coroutine.supervisorJob.dispatcher)
 
 
 fun main() {
 
-    scope.launch {
-        longOperation(3000, 1)
+    Coroutine.supervisorJob.scope.launch {
+        Coroutine.supervisorJob.longOperation(3000, 1)
         error("")
     }
 
-    scope.launch {
-        longOperation(4000, 2)
+    Coroutine.supervisorJob.scope.launch {
+        Coroutine.supervisorJob.longOperation(4000, 2)
     }
 
 

@@ -1,4 +1,4 @@
-package executors
+package Coroutine.executors
 
 import java.util.concurrent.Executors
 
@@ -7,13 +7,13 @@ fun main() {
     println(Runtime.getRuntime().availableProcessors().toString())
     repeat(100) {
         executorService.execute {
-            processImage(Image(it))
+            Coroutine.executors.processImage(Coroutine.executors.Image(it))
         }
     }
 
 }
 
-private fun processImage(image: Image) {
+private fun processImage(image: Coroutine.executors.Image) {
     println("Image $image is processing")
     Thread.sleep(1000)
 
