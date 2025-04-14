@@ -1,3 +1,4 @@
+
 package Flow.dictionary
 
 import kotlinx.coroutines.*
@@ -10,6 +11,7 @@ import java.awt.event.KeyEvent
 import java.util.concurrent.Executors
 import javax.swing.*
 
+@Suppress("OPT_IN_USAGE")
 object Display {
     private val queries = Channel<String>()
 
@@ -69,6 +71,7 @@ object Display {
                 resultArea.text = "Loading..."
                 searchButton.isEnabled = false
             } // Вызывается перед стартом потока. В данном случае делаем кнопки неактивными
+            .debounce(500)
             .map {
                 repository.loadDefinition(it)
             } // Сразу же загружаем слово, которое летит по цепочке. Нам прилетает уже ответ от сервера тут
@@ -76,6 +79,7 @@ object Display {
                 it.joinToString("\n\n").ifEmpty { "Text not found" }
             }
             .onEach {
+                println(it)
                 resultArea.text = it
                 searchButton.isEnabled = true
             } // Данные действия нужно выполнять при каждом новом объекте в потоке
