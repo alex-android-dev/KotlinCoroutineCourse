@@ -1,6 +1,8 @@
 package Flow.dictionary
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import java.awt.BorderLayout
 import java.awt.event.KeyAdapter
@@ -9,13 +11,12 @@ import java.util.concurrent.Executors
 import javax.swing.*
 
 object Display {
-    private lateinit var queries: Flow<String>
+    private val queries = Channel<String>()
 
 
     private val dispatcher = Executors.newCachedThreadPool().asCoroutineDispatcher()
     private val scope = CoroutineScope(dispatcher + SupervisorJob())
     private val repository = Repository
-    private var loadingJob: Job? = null
 
     private val enterWordLAbel = JLabel("Enter word: ")
 
@@ -57,11 +58,13 @@ object Display {
     }
 
     private fun loadDefinition() {
-
+        scope.launch {
+            queries.send(searchField.text.trim())
+        }
     }
 
     init {
-        queries
+        queries.consumeAsFlow() // Преобразует канал в Flow
             .onEach {
                 resultArea.text = "Loading..."
                 searchButton.isEnabled = false
