@@ -13,7 +13,7 @@ object Repository {
 
     private val jsonWithIgnoreKeys = Json { ignoreUnknownKeys = true }
 
-    suspend fun loadDefinition(word: String): String {
+    suspend fun loadDefinition(word: String): List<String> {
 
         return withContext(Dispatchers.IO) {
 
@@ -38,36 +38,22 @@ object Repository {
                 // Поток байтов, который преобразуем в поток символов
                 // JSON
 
-                jsonWithIgnoreKeys.decodeFromString<Definition>(response).definition
+                jsonWithIgnoreKeys.decodeFromString<Definition>(response).mapDefinitionToList()
             } catch (e: Exception) {
-                Definition("").definition
+                listOf()
             } finally {
                 connection?.disconnect()
             }
         }
 
     }
+
+    private fun Definition.mapDefinitionToList(): List<String> {
+        val regex = Regex("\\d. ")
+        return this.definition.split(regex).map { it.trim() }.filter { it.isNotEmpty() }
+    }
 }
 // Открыть соединение с интернетом
 // Сделать запрос
 // Прочитать данные от сервер
 // Полученный объект преобразовать в Definition
-
-private val dispatcher = Executors.newCachedThreadPool().asCoroutineDispatcher()
-private val scope = CoroutineScope(dispatcher)
-
-fun main() {
-
-    scope.launch {
-        while (true) {
-            println("Enter word: ")
-
-            val word = readln()
-
-            val definition = Repository.loadDefinition(word)
-
-            println(definition)
-        }
-    }
-
-}

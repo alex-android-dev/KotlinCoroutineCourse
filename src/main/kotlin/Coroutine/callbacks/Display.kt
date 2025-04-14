@@ -1,6 +1,5 @@
 package Coroutine.callbacks
 
-import Coroutine.entities.Author
 import Coroutine.entities.Book
 import java.awt.BorderLayout
 import java.awt.Dimension
