@@ -1,34 +1,39 @@
+
 package Flow.dictionary
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.flow.*
 import java.awt.BorderLayout
+import java.awt.event.KeyAdapter
+import java.awt.event.KeyEvent
 import java.util.concurrent.Executors
 import javax.swing.*
 
+@Suppress("OPT_IN_USAGE")
 object Display {
+    private val queries = Channel<String>()
+
+
     private val dispatcher = Executors.newCachedThreadPool().asCoroutineDispatcher()
     private val scope = CoroutineScope(dispatcher + SupervisorJob())
     private val repository = Repository
 
     private val enterWordLAbel = JLabel("Enter word: ")
-    private val searchField = JTextField(20)
+
+    private val searchField = JTextField(20).apply {
+        addKeyListener(object : KeyAdapter() {
+            override fun keyReleased(e: KeyEvent?) {
+                super.keyReleased(e)
+                loadDefinition()
+            }
+        })
+    }
 
     private val searchButton = JButton("Search").apply {
         addActionListener {
-            scope.launch {
-                resultArea.text = "Loading..."
-                isEnabled = false
-                val word = searchField.text.trim()
-                val text = repository.loadDefinition(word).joinToString("\n\n")
-
-                resultArea.text = text.ifBlank { "Text not found" }
-
-                isEnabled = true
-            }
-
+            loadDefinition()
         }
     }
 
@@ -52,6 +57,33 @@ object Display {
 
     fun show() {
         mainFrame.isVisible = true
+    }
+
+    private fun loadDefinition() {
+        scope.launch {
+            queries.send(searchField.text.trim())
+        }
+    }
+
+    init {
+        queries.consumeAsFlow() // Преобразует канал в Flow
+            .onEach {
+                resultArea.text = "Loading..."
+                searchButton.isEnabled = false
+            } // Вызывается перед стартом потока. В данном случае делаем кнопки неактивными
+            .debounce(500)
+            .map {
+                repository.loadDefinition(it)
+            } // Сразу же загружаем слово, которое летит по цепочке. Нам прилетает уже ответ от сервера тут
+            .map {
+                it.joinToString("\n\n").ifEmpty { "Text not found" }
+            }
+            .onEach {
+                println(it)
+                resultArea.text = it
+                searchButton.isEnabled = true
+            } // Данные действия нужно выполнять при каждом новом объекте в потоке
+            .launchIn(scope) // У скоупа вызывает метод launch и у Flow вызывает метод collect
     }
 
 }
