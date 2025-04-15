@@ -1,10 +1,12 @@
 
 package Flow.dictionary
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import java.awt.BorderLayout
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
