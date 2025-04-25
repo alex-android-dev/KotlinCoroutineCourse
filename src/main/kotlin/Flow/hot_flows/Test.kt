@@ -1,4 +1,4 @@
-package Flow.coldFlows
+package Flow.hot_flows
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -15,15 +15,16 @@ fun main() {
 
     scope.launch {
         flow.collect {
-            println("first flow: $it")
+            println("coroutine 1: $it")
         }
     }
 
     scope.launch {
+        delay(5000)
         flow
             .take(3)
             .collect {
-                println("second flow: $it")
+                println("coroutine 2: $it")
             }
     }
 }
